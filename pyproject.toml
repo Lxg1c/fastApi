@@ -5,3 +5,4 @@ package-mode = false
 python = "^3.12"  # Используйте актуальную версию Python
 uvicorn = {extras = ["standart"], version = "^0.34.0"}
 fastapi = "^0.115.8"
+black = "^25.1.0"
