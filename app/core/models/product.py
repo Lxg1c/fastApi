@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped
-from app.core.models.base import BaseModel
+from .base import Base
 
 
-class Product(BaseModel):
+class Product(Base):
     name: Mapped[str]
     price: Mapped[int]
