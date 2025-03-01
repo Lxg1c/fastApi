@@ -8,8 +8,8 @@ Delete
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api_v1.products.schemas import ProductCreate
-from app.core.models import Product
+from api_v1.products.schemas import ProductCreate
+from core.models import Product
 
 
 async def get_products(session: AsyncSession) -> list[Product]:
