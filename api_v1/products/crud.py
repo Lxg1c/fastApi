@@ -23,8 +23,8 @@ async def get_product_by_id(session: AsyncSession, product_id: int) -> Product |
     return await session.get(Product, product_id)
 
 
-async def create_product(session: AsyncSession, product: ProductCreate) -> Product:
-    product = Product(**product.model_dump())
+async def create_product(session: AsyncSession, product_in: ProductCreate) -> Product:
+    product = Product(**product_in.model_dump())
     session.add(product)
     await session.commit()
     return product
