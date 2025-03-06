@@ -11,3 +11,4 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.38"}
 pydantic-settings = "^2.8.1"
 aisqlite = "^1.1.0"
 aiosqlite = "^0.21.0"
+alembic = "^1.15.1"
