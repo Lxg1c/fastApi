@@ -8,9 +8,17 @@ class ProductBase(BaseModel):
 
 class Product(ProductBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
 
 
 class ProductCreate(ProductBase):
     pass
+
+
+class ProductUpdate(ProductCreate):
+    pass
+
+
+class ProductUpdatePartial(ProductBase):
+    name: str | None = None
+    price: int | None = None
