@@ -30,17 +30,17 @@ class DbHelper:
     async def session_dependency(self) -> AsyncSession:
         async with self.session_factory() as session:
             yield session
-            await session.aclose()  # Используем aclose() для асинхронного закрытия
+            await session.aclose()
 
     async def scoped_session_dependency(self) -> AsyncSession:
         session = self.get_scoped_session()
         try:
             yield session
         finally:
-            await session.aclose()  # Закрываем сессию после завершения
+            await session.aclose()
 
 
 db_helper = DbHelper(
-    url=settings.db_url,
-    echo=settings.db_echo,
+    url=settings.db.url,
+    echo=settings.db.echo,
 )
