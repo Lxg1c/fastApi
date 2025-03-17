@@ -7,6 +7,7 @@ class UserBase(BaseModel):
     email: EmailStr
     password: bytes
     username: Annotated[str, MinLen(3), MaxLen(20)]
+    active: bool = True
 
 
 class CreateUser(UserBase):
