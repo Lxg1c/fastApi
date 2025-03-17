@@ -1,15 +1,16 @@
+from typing import AsyncGenerator
 from asyncio import current_task
 from sqlalchemy.ext.asyncio import (
+    AsyncSession,
     create_async_engine,
     async_sessionmaker,
     async_scoped_session,
-    AsyncSession,
 )
 from core.config import settings
 
 
-class DbHelper:
-    def __init__(self, url, echo=False):
+class DatabaseHelper:
+    def __init__(self, url: str, echo: bool = False):
         self.engine = create_async_engine(
             url=url,
             echo=echo,
@@ -21,26 +22,24 @@ class DbHelper:
             expire_on_commit=False,
         )
 
-    def get_scoped_session(self):
-        return async_scoped_session(
+    def get_scoped_session(self) -> async_scoped_session:
+        session = async_scoped_session(
             session_factory=self.session_factory,
             scopefunc=current_task,
         )
+        return session
 
-    async def session_dependency(self) -> AsyncSession:
+    async def scoped_session_dependency(self) -> AsyncGenerator[AsyncSession, None]:
+        scoped_session = self.get_scoped_session()
+        async with scoped_session() as session:
+            yield session  # Теперь передаем именно объект AsyncSession
+
+    async def session_dependency(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.session_factory() as session:
             yield session
-            await session.aclose()
-
-    async def scoped_session_dependency(self) -> AsyncSession:
-        session = self.get_scoped_session()
-        try:
-            yield session
-        finally:
-            await session.aclose()
 
 
-db_helper = DbHelper(
+db_helper = DatabaseHelper(
     url=settings.db.url,
     echo=settings.db.echo,
 )
