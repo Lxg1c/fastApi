@@ -1,11 +1,5 @@
-"""
-Create
-Read
-Update
-Delete
-"""
+from typing import List
 
-from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from api_v1.products.schemas import (
     ProductCreate,
@@ -14,13 +8,11 @@ from api_v1.products.schemas import (
     ProductSchema,
 )
 from core.models import Product
+from core.services.dependencies import get_all_records, create_record, update_record
 
 
-async def get_products(session: AsyncSession) -> list[Product]:
-    stmt = select(Product).order_by(Product.id)
-    result: Result = await session.execute(stmt)
-    products = result.scalars().all()
-    return list(products)
+async def get_products(session: AsyncSession) -> List[Product]:
+    return await get_all_records(session, Product)
 
 
 async def get_product_by_id(session: AsyncSession, product_id: int) -> Product | None:
@@ -28,10 +20,7 @@ async def get_product_by_id(session: AsyncSession, product_id: int) -> Product |
 
 
 async def create_product(session: AsyncSession, product_in: ProductCreate) -> Product:
-    product = Product(**product_in.model_dump())
-    session.add(product)
-    await session.commit()
-    return product
+    return await create_record(session, Product, product_in.model_dump())
 
 
 async def update_product(
@@ -40,15 +29,11 @@ async def update_product(
     product_update: ProductUpdate | ProductUpdatePartial,
     partial: bool = False,
 ) -> ProductSchema:
-    for name, value in product_update.model_dump(exclude_unset=partial).items():
-        setattr(product_in, name, value)
-    await session.commit()
-    return product_in
+    return await update_record(
+        session, product_in, product_update.model_dump(exclude_unset=partial), partial
+    )
 
 
-async def delete_product(
-    session: AsyncSession,
-    product: ProductSchema,
-) -> None:
+async def delete_product(session: AsyncSession, product: ProductSchema) -> None:
     await session.delete(product)
     await session.commit()

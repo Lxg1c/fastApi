@@ -8,8 +8,8 @@ from .dependencies import get_product_by_id
 from fastapi import status
 
 router = APIRouter(
-    prefix="/products",
-    tags=["Products"],
+    prefix="/product",
+    tags=["Product"],
 )
 
 
@@ -29,7 +29,7 @@ async def create_product(
 
 
 @router.get("/{product_id}", response_model=ProductSchema)
-async def get_product(
+async def get_product_by_id(
     product: ProductSchema = Depends(get_product_by_id),
 ):
     return product
@@ -38,21 +38,21 @@ async def get_product(
 @router.put("/{product_id}", response_model=ProductSchema)
 async def update_product(
     product_update: ProductUpdate,
-    product_in: ProductSchema = Depends(get_product),
+    product_in: ProductSchema = Depends(get_product_by_id),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.update_product(
         product_in=product_in,
         session=session,
         product_update=product_update,
-        partial=False,  # Полное обновление
+        partial=False,
     )
 
 
 @router.patch("/{product_id}", response_model=ProductSchema)
 async def update_product_partial(
     product_update: ProductUpdatePartial,
-    product_in: ProductSchema = Depends(get_product),
+    product_in: ProductSchema = Depends(get_product_by_id),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     return await crud.update_product(
