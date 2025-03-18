@@ -10,7 +10,11 @@ class DbSettings(BaseSettings):
 
 
 class AuthJWT(BaseSettings):
+    # Генерация приватного ключа RSA 2048 бит
+    # openssl genpkey -algorithm RSA -out certs/jwt-private.pem
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
+    # Генерация публичного ключа из приватного
+    # openssl rsa -in certs/jwt-private.pem -pubout -out certs/jwt-public.pem
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 15
