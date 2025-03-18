@@ -1,6 +1,7 @@
 from typing import List
+from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.models import Category
+from core.models import Category, Product
 from core.services.dependencies import get_all_records, create_record, update_record
 from .schemas import (
     CategoryCreate,
@@ -41,7 +42,7 @@ async def update_product(
     )
 
 
-# Нерабочий метод
+# Рабочий метод
 async def delete_category(
     session: AsyncSession,
     category: CategorySchema,
