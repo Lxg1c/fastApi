@@ -30,7 +30,11 @@ async def get_product_by_id(
 
 async def create_product(session: AsyncSession, product_in: ProductCreate) -> Product:
     """Создать новый продукт с изображениями."""
-    product = Product(name=product_in.name, price=product_in.price)
+    product = Product(
+        name=product_in.name,
+        price=product_in.price,
+        category_id=product_in.category_id,  # Передаем category_id
+    )
 
     session.add(product)
     await session.commit()
@@ -45,7 +49,15 @@ async def create_product(session: AsyncSession, product_in: ProductCreate) -> Pr
         session.add_all(images)
         await session.commit()
 
-    return product
+    # Явно загружаем связанные данные (images)
+    result = await session.execute(
+        select(Product)
+        .options(selectinload(Product.images))
+        .filter(Product.id == product.id)
+    )
+    product_with_images = result.scalars().first()
+
+    return product_with_images
 
 
 async def update_product(
