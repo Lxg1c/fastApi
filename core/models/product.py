@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import mapped_column
 from .base import Base
 
@@ -12,6 +12,13 @@ class Product(Base):
 
     images: Mapped[list["Image"]] = relationship(
         "Image", back_populates="product", cascade="all, delete-orphan"
+    )
+    category_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("categorys.id"), nullable=False
+    )
+    category: Mapped["Category"] = relationship(
+        "Category",
+        back_populates="products",
     )
 
     def __str__(self):
