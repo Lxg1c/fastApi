@@ -13,11 +13,13 @@ class ProductBase(BaseModel):
 class ProductSchema(ProductBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    category_id: int
     images: Optional[List[ImageBase]] = []
 
 
 class ProductCreate(ProductBase):
     images: Optional[List[ImageBase]] = []
+    category_id: int
 
 
 class ProductUpdate(ProductCreate):
