@@ -1,4 +1,8 @@
+from typing import Optional, List
+
 from pydantic import BaseModel, ConfigDict
+
+from api_v1.images.schemas import ImageBase
 
 
 class ProductBase(BaseModel):
@@ -9,10 +13,11 @@ class ProductBase(BaseModel):
 class ProductSchema(ProductBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    images: Optional[List[ImageBase]] = []
 
 
 class ProductCreate(ProductBase):
-    pass
+    images: Optional[List[ImageBase]] = []
 
 
 class ProductUpdate(ProductCreate):
