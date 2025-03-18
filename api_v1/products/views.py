@@ -1,6 +1,8 @@
+from core.models import Category
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy import select, Result
+from sqlalchemy.orm import selectinload
 from core.models.db_helper import db_helper
 from . import crud
 from .schemas import ProductSchema, ProductCreate, ProductUpdate, ProductUpdatePartial
@@ -85,3 +87,22 @@ async def delete_product(
         )
 
     await crud.delete_product(session=session, product=product)
+
+
+@router.get("/products/category/{category_id}")
+async def get_products_by_category(
+    category_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    stmt = (
+        select(Category)
+        .options(selectinload(Category.products))
+        .filter(Category.id == category_id)
+    )
+    result: Result = await session.execute(stmt)
+    category = result.scalars().first()
+
+    if category is None:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    return category.products
