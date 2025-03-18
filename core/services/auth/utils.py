@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime, timedelta, UTC
 import bcrypt
-import jwt
 from core.config import settings
+import jwt
 
 
 def encode_jwt(
