@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
-from api_v1.users.schemas import UserSchema
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api_v1.users.schemas import UserSchema, CreateUser
 from api_v1.users.token import TokenInfo
+from core.models.db_helper import db_helper
 from core.services.auth.helpers import create_access_token, create_refresh_token
 from core.services.auth.validation import (
     validate_auth_user,
-    get_current_token_payload,
-    get_current_active_auth_user,
-    get_current_auth_user_for_refresh,
+    get_current_auth_user_for_refresh, validate_registration, get_current_token_payload,
 )
+from .crud import create_user
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -19,9 +21,15 @@ router = APIRouter(
 )
 
 
+@router.post("/register/")
+async def register(user: CreateUser = Depends(validate_registration),
+                   session: AsyncSession = Depends(db_helper.scoped_session_dependency), ):
+    return await create_user(user=user, session=session, )
+
+
 @router.post("/login/", response_model=TokenInfo)
 def auth_user_issue_jwt(
-    user: UserSchema = Depends(validate_auth_user),
+        user: UserSchema = Depends(validate_auth_user),
 ):
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
@@ -37,10 +45,7 @@ def auth_user_issue_jwt(
     response_model_exclude_none=True,
 )
 def auth_refresh_jwt(
-    # todo: validate user is active!!
-    user: UserSchema = Depends(get_current_auth_user_for_refresh),
-    # user: UserSchema = Depends(get_auth_user_from_token_of_type(REFRESH_TOKEN_TYPE)),
-    # user: UserSchema = Depends(UserGetterFromToken(REFRESH_TOKEN_TYPE)),
+        user: UserSchema = Depends(get_current_auth_user_for_refresh),
 ):
     access_token = create_access_token(user)
     return TokenInfo(
@@ -48,14 +53,11 @@ def auth_refresh_jwt(
     )
 
 
-@router.get("/me/")
+@router.get("/users/me/")
 def auth_user_check_self_info(
-    payload: dict = Depends(get_current_token_payload),
-    user: UserSchema = Depends(get_current_active_auth_user),
+        payload: dict = Depends(get_current_token_payload),
 ):
-    iat = payload.get("iat")
     return {
-        "username": user.username,
-        "email": user.email,
-        "logged_in_at": iat,
+        "username": payload["username"],
+        "email": payload["email"],
     }
