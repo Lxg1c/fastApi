@@ -1,8 +1,10 @@
 from typing import List
-from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.models import Category, Product
-from core.services.dependencies import get_all_records, create_record, update_record
+from core.models import Category
+from core.services.shared.dependencies import (
+    get_all_records,
+    create_record, update_record,
+)
 from .schemas import (
     CategoryCreate,
     CategorySchema,
