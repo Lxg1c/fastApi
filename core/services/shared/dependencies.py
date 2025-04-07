@@ -45,3 +45,21 @@ async def delete_record(
 ):
     await session.delete(record)
     await session.commit()
+
+
+# Универсальная зависимость для получения объекта по ID с 404
+def get_object_by_id_or_404(
+    model: Type[T],
+    id_name: str,
+    get_func: Callable[[AsyncSession, int], Awaitable[T | None]],
+):
+    async def dependency(
+        object_id: int = Path(..., alias=id_name),
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    ) -> T:
+        obj = await get_func(session, object_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail=f"{model.__name__} not found")
+        return obj
+
+    return dependency
