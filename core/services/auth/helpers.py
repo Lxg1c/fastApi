@@ -1,8 +1,8 @@
 from datetime import timedelta
 
 from api_v1.users.schemas import UserSchema
-from . import utils as auth_utils
 from core.config import settings
+from . import utils as auth_utils
 
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
@@ -15,6 +15,7 @@ def create_jwt(
     expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
     expire_timedelta: timedelta | None = None,
 ) -> str:
+    """Создание JWT токена с типом и сроком действия"""
     jwt_payload = {TOKEN_TYPE_FIELD: token_type}
     jwt_payload.update(token_data)
     return auth_utils.encode_jwt(
@@ -25,12 +26,12 @@ def create_jwt(
 
 
 def create_access_token(user: UserSchema) -> str:
+    """Создание access токена для пользователя"""
     jwt_payload = {
-        # subject
         "sub": user.username,
         "username": user.username,
         "email": user.email,
-        # "logged_in_at"
+        "phone": user.phone,
     }
     return create_jwt(
         token_type=ACCESS_TOKEN_TYPE,
@@ -40,9 +41,9 @@ def create_access_token(user: UserSchema) -> str:
 
 
 def create_refresh_token(user: UserSchema) -> str:
+    """Создание refresh токена для пользователя"""
     jwt_payload = {
         "sub": user.username,
-        # "username": user.username,
     }
     return create_jwt(
         token_type=REFRESH_TOKEN_TYPE,

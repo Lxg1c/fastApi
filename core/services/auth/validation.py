@@ -20,6 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 def get_current_token_payload(
         token: str = Depends(oauth2_scheme),
 ) -> dict:
+    """Декодирует JWT, возвращает payload"""
     try:
         payload = auth_utils.decode_jwt(
             token=token,
@@ -36,6 +37,7 @@ def validate_token_type(
         payload: dict,
         token_type: str,
 ) -> bool:
+    """Проверка типа токена"""
     current_token_type = payload.get(TOKEN_TYPE_FIELD)
     if current_token_type == token_type:
         return True
@@ -48,6 +50,7 @@ def validate_token_type(
 async def get_user_by_token_sub(
         payload: dict, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
 ) -> UserSchema:
+    """Получение пользователя из токена"""
     username: str | None = payload.get("sub")
 
     if not username:
@@ -71,6 +74,7 @@ def get_auth_user_from_token_of_type(token_type: str):
     async def get_auth_user_from_token(
             payload: dict = Depends(get_current_token_payload),
     ) -> UserSchema:
+        """Фабрика зависимостей по типу токена"""
         validate_token_type(payload, token_type)
         return await get_user_by_token_sub(payload)
 
@@ -78,6 +82,8 @@ def get_auth_user_from_token_of_type(token_type: str):
 
 
 class UserGetterFromToken:
+    """Класс-зависимость для получения пользователя по токену"""
+
     def __init__(self, token_type: str):
         self.token_type = token_type
 
@@ -89,6 +95,7 @@ class UserGetterFromToken:
         return get_user_by_token_sub(payload)
 
 
+# Зависимости
 get_current_auth_user = get_auth_user_from_token_of_type(ACCESS_TOKEN_TYPE)
 get_current_auth_user_for_refresh = UserGetterFromToken(REFRESH_TOKEN_TYPE)
 
@@ -96,9 +103,11 @@ get_current_auth_user_for_refresh = UserGetterFromToken(REFRESH_TOKEN_TYPE)
 async def validate_registration(
         username: str = Form(),
         email: EmailStr = Form(),
+        phone: str = Form(),
         password: str = Form(),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> CreateUser:
+    """Валидация регистрации и хэширование пароля"""
     user = await get_user_by_username(username=username, session=session)
 
     if user:
@@ -116,20 +125,21 @@ async def validate_registration(
 
     password = hash_password(password=password)
 
-    return CreateUser(username=username, email=email, password=password)
+    return CreateUser(username=username, email=email, password=password, phone=phone)
 
 
 async def validate_auth_user(
-        username: str = Form(),
+        email: EmailStr = Form(),
         password: str = Form(),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
+    """Проверка email и пароля при логине"""
     unauthorized_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="invalid username or password",
+        detail="invalid email or password",
     )
 
-    user = await get_user_by_username(username=username, session=session)
+    user = await get_user_by_email(email=email, session=session)
     if not user:
         raise unauthorized_exc
 
