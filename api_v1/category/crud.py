@@ -1,9 +1,13 @@
 from typing import List
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from core.models import Category
 from core.services.shared.dependencies import (
     get_all_records,
-    create_record, update_record,
+    create_record,
+    update_record,
+    delete_record,
 )
 from .schemas import (
     CategoryCreate,
@@ -13,19 +17,23 @@ from .schemas import (
 )
 
 
+# Получить список всех категорий
 async def get_categories(
     session: AsyncSession,
 ) -> List[Category]:
     return await get_all_records(session, Category)
 
 
+# Создать новую категорию
 async def create_category(
     session: AsyncSession,
     category: CategoryCreate,
 ) -> Category:
+    # Преобразуем Pydantic-схему в словарь и создаём запись
     return await create_record(session, Category, category.model_dump())
 
 
+# Получить категорию по её ID
 async def get_category_by_id(
     session: AsyncSession,
     category_id: int,
@@ -44,7 +52,7 @@ async def update_product(
     )
 
 
-# Рабочий метод
+# Удалить категорию
 async def delete_category(
     session: AsyncSession,
     category: CategorySchema,
