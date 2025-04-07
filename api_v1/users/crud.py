@@ -25,8 +25,24 @@ async def get_user_by_email(session: AsyncSession, email: EmailStr) -> User:
     return result.scalar_one_or_none()
 
 
+# Получить пользователя по phone
+async def get_user_by_phone(session: AsyncSession, phone: str) -> User:
+    stmt = select(User).where(User.phone == phone)
+    result: Result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+# Создать пользователя
 async def create_user(
         session: AsyncSession,
         user: CreateUser,
 ) -> User:
     return await create_record(session, User, user.model_dump())
+
+
+# Удалить пользователя
+async def delete_user(
+        user: User,
+        session: AsyncSession,
+):
+    await delete_record(record=user, session=session)
