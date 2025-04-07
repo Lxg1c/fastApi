@@ -19,15 +19,15 @@ from .schemas import (
 
 # Получить список всех категорий
 async def get_categories(
-    session: AsyncSession,
+        session: AsyncSession,
 ) -> List[Category]:
     return await get_all_records(session, Category)
 
 
 # Создать новую категорию
 async def create_category(
-    session: AsyncSession,
-    category: CategoryCreate,
+        session: AsyncSession,
+        category: CategoryCreate,
 ) -> Category:
     # Преобразуем Pydantic-схему в словарь и создаём запись
     return await create_record(session, Category, category.model_dump())
@@ -35,27 +35,30 @@ async def create_category(
 
 # Получить категорию по её ID
 async def get_category_by_id(
-    session: AsyncSession,
-    category_id: int,
+        session: AsyncSession,
+        category_id: int,
 ) -> Category | None:
     return await session.get(Category, category_id)
 
 
-async def update_product(
-    session: AsyncSession,
-    category_in: CategorySchema,
-    category_update: CategoryUpdate | CategoryUpdatePartial,
-    partial: bool = False,
+# Обновить категорию (полное или частичное обновление)
+async def update_product(  # 💡 лучше переименовать в update_category
+        session: AsyncSession,
+        category_in: CategorySchema,  # текущая категория (ORM-объект)
+        category_update: CategoryUpdate | CategoryUpdatePartial,  # данные для обновления
+        partial: bool = False,  # если True — частичное обновление
 ) -> CategorySchema:
     return await update_record(
-        session, category_in, category_update.model_dump(exclude_unset=partial), partial
+        session,
+        category_in,
+        category_update.model_dump(exclude_unset=partial),  # исключаем незаданные поля при partial
+        partial,
     )
 
 
 # Удалить категорию
 async def delete_category(
-    session: AsyncSession,
-    category: CategorySchema,
+        session: AsyncSession,
+        category: Category,
 ):
-    await session.delete(category)
-    await session.commit()
+    await delete_record(record=category, session=session)
