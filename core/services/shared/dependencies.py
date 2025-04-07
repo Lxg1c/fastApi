@@ -1,47 +1,56 @@
-from typing import List, Type, TypeVar
+from typing import List, Type, TypeVar, Callable, Awaitable
 
+from fastapi import Depends, Path, HTTPException
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.models.db_helper import db_helper
+
+# Обобщённый тип для моделей SQLAlchemy
 T = TypeVar("T")
 
 
+# Получить все записи модели из базы данных
 async def get_all_records(
-        session: AsyncSession,
-        model: Type[T],
+    session: AsyncSession,
+    model: Type[T],
 ) -> List[T]:
     stmt = select(model).order_by(model.id)
     result: Result = await session.execute(stmt)
-    records = result.scalars().all()
-    return list(records)
+    return list(result.scalars().all())
 
 
+# Создать новую запись в базе данных
 async def create_record(
-        session: AsyncSession,
-        model: Type[T],
-        data: dict,
+    session: AsyncSession,
+    model: Type[T],
+    data: dict,
 ) -> T:
     record = model(**data)
     session.add(record)
     await session.commit()
+    await session.refresh(record)
     return record
 
 
+# Обновить существующую запись в базе данных
 async def update_record(
-        session: AsyncSession,
-        record: T,
-        update_data: dict,
-        partial: bool = False,
+    session: AsyncSession,
+    record: T,
+    update_data: dict,
+    partial: bool = False,
 ) -> T:
     for name, value in update_data.items():
         setattr(record, name, value)
     await session.commit()
+    await session.refresh(record)
     return record
 
 
+# Удалить запись из базы данных
 async def delete_record(
-        record: T,
-        session: AsyncSession,
+    record: T,
+    session: AsyncSession,
 ):
     await session.delete(record)
     await session.commit()
