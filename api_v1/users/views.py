@@ -74,4 +74,28 @@ def auth_user_check_self_info(
     return {
         "username": payload["username"],
         "email": payload["email"],
+        "phone": payload["phone"],
     }
+
+# Удаление пользователя по ID.
+@router.delete("/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+        user: User = Depends(get_object_by_id_or_404(
+            model=User,
+            id_name="user_id",
+            get_func=crud.get_user_by_id
+        )),
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+
+    try:
+        await crud.delete_user(user=user, session=session)
+        return {
+                "message": "User deleted",
+        }
+    except Exception as err:
+        # Возможные ошибки (например, нарушение внешнего ключа)
+        return {
+            "message": "Error when deleting user",
+            "error": str(err),
+        }
