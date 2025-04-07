@@ -37,3 +37,11 @@ async def update_record(
         setattr(record, name, value)
     await session.commit()
     return record
+
+
+async def delete_record(
+        record: T,
+        session: AsyncSession,
+):
+    await session.delete(record)
+    await session.commit()
