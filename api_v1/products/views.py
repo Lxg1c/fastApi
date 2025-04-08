@@ -88,7 +88,7 @@ async def delete_product(
     product: Product = Depends(
         get_object_by_id_or_404(
             model=Product,
-            id_name="category_id",
+            id_name="product_id",
             get_func=crud.get_product_by_id,
         )
     ),
