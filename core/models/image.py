@@ -2,7 +2,6 @@ from sqlalchemy import Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
-from . import Product
 from .base import Base
 
 
