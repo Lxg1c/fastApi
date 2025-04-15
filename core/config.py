@@ -11,7 +11,7 @@ class DbSettings(BaseSettings):
     # URL подключения к базе (SQLite по умолчанию)
     url: str = f"sqlite+aiosqlite:///{BASE_DIR}/db.sqlite3"
     # Логировать SQL-запросы
-    echo: bool = True
+    echo: bool = False
 
 
 # Настройки JWT-аутентификации
