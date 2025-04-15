@@ -66,7 +66,7 @@ def auth_refresh_jwt(
     )
 
 # Получение информации о текущем пользователе по access-токену.
-@router.get("/users/me/")
+@router.get("/me/")
 def auth_user_check_self_info(
         payload: dict = Depends(get_current_token_payload),
 ):
