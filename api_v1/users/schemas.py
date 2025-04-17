@@ -21,3 +21,13 @@ class UserSchema(UserBase):
     id: int
     phone: Annotated[str, MinLen(3), MaxLen(20)]
     model_config = ConfigDict(strict=True)
+
+# Схема для обновления данных
+class UserUpdate(UserBase):
+    phone: Annotated[str, MinLen(3), MaxLen(20)]
+
+# Схема для обновления данных (частично)
+class UserUpdatePartial(UserBase):
+    username: str | None = None
+    email: EmailStr | None = None
+    phone: str | None = None
