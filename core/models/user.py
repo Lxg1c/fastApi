@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import List
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
 
@@ -27,6 +29,10 @@ class User(Base):
 
     # Пароль в зашифрованном виде (hash). Храним в байтах.
     password: Mapped[bytes]
+
+    cart_items: Mapped[List["Cart"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     # Человеко-читаемое представление модели
     def __str__(self):
