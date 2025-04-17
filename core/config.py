@@ -21,8 +21,8 @@ class AuthJWT(BaseSettings):
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     # Время жизни access-токена (в минутах)
-    access_token_expire_minutes: int = 15
-    # Время жизни refresh-токена (в днях)
+    access_token_expire_minutes: int = 60
+    # Время жизни refresh-токена (в минутах)
     refresh_token_expire_days: int = 30
 
 
