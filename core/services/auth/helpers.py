@@ -29,6 +29,7 @@ def create_access_token(user: UserSchema) -> str:
     """Создание access токена для пользователя"""
     jwt_payload = {
         "sub": user.username,
+        "id": user.id,
         "username": user.username,
         "email": user.email,
         "phone": user.phone,
