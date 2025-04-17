@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.users.schemas import CreateUser
+from api_v1.users.schemas import CreateUser, UserUpdate, UserUpdatePartial
 from core.models.user import User
 from core.services.shared.dependencies import get_all_records, create_record, delete_record
 
@@ -54,3 +54,18 @@ async def delete_user(
         session: AsyncSession,
 ):
     await delete_record(record=user, session=session)
+
+
+# Обновить пользователя
+async def update_user(
+        session: AsyncSession,
+        user: User,
+        user_update: UserUpdate | UserUpdatePartial,
+        partial: bool = False,
+) -> User:
+    for field, value in user_update.model_dump(exclude_unset=partial).items():
+        setattr(user, field, value)
+
+    await session.commit()
+    await session.refresh(user)
+    return user
