@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.users.schemas import UserSchema, CreateUser
+from api_v1.users.schemas import UserSchema, CreateUser, UserUpdate, UserUpdatePartial
 from api_v1.users.token import TokenInfo
 from core.models import User
 from core.models.db_helper import db_helper
@@ -72,6 +72,7 @@ def auth_user_check_self_info(
 ):
 
     return {
+        "id": payload["id"],
         "username": payload["username"],
         "email": payload["email"],
         "phone": payload["phone"],
@@ -99,3 +100,38 @@ async def delete_user(
             "message": "Error when deleting user",
             "error": str(err),
         }
+
+# Полное обновление продукта
+@router.put("/{user_id}", response_model=UserSchema)
+async def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    user = await crud.get_user_by_id(session=session, user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return await crud.update_user(
+        session=session, user=user, user_update=user_update, partial=False
+    )
+
+
+# Частичное обновление продукта
+@router.patch("/{user_id}", response_model=UserSchema)
+async def update_user_partial(
+    user_id: int,
+    user_update: UserUpdatePartial,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    user = await crud.get_user_by_id(session=session, user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return await crud.update_user(
+        session=session, user=user, user_update=user_update, partial=True
+    )
