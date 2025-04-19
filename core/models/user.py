@@ -33,6 +33,9 @@ class User(Base):
     cart_items: Mapped[List["Cart"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    favorite_items: Mapped[list["Favorite"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     # Человеко-читаемое представление модели
     def __str__(self):
