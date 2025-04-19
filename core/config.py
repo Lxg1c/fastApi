@@ -23,7 +23,7 @@ class AuthJWT(BaseSettings):
     # Время жизни access-токена (в минутах)
     access_token_expire_minutes: int = 60
     # Время жизни refresh-токена (в минутах)
-    refresh_token_expire_days: int = 30
+    refresh_token_expire_minutes: int = 30 * 60 * 24
 
 
 # Общие настройки приложения

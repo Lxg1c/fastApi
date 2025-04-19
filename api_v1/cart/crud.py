@@ -53,11 +53,13 @@ async def get_cart_item(
 
 
 async def delete_cart_item(
-    session: AsyncSession,
-    product_id: int,
-    user_id: int,
+    session: AsyncSession, product_id: int, user_id: int, size: str
 ):
     await session.execute(
-        delete(Cart).where(Cart.product_id == product_id and Cart.user_id == user_id)
+        delete(Cart).where(
+            Cart.product_id == product_id,
+            Cart.user_id == user_id,
+            Cart.size == size,
+        )
     )
     await session.commit()

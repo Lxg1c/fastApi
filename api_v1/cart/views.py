@@ -38,7 +38,7 @@ async def add_item_to_cart(
     return await add_to_cart(session, user_id, item)
 
 
-@router.put("/{item_id}", response_model=CartItemBase)
+@router.put("/", response_model=CartItemBase)
 async def update_cart_quantity(
     product_id: int,
     user_id: int,
@@ -64,10 +64,25 @@ async def update_cart_quantity(
     return updated_item
 
 
-@router.delete("/{item_id}", response_model=None)
+@router.delete("/", response_model=None)
 async def remove_cart_item(
     product_id: int,
     user_id: int,
+    size: str,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-):
-    await delete_cart_item(session=session, user_id=user_id, product_id=product_id)
+) -> CartItemBase:
+
+    deleted_item = await get_cart_item(
+        session=session,
+        product_id=product_id,
+        user_id=user_id,
+    )
+
+    if not deleted_item:
+        raise HTTPException(status_code=404, detail="Cart item not found")
+
+    await delete_cart_item(
+        session=session, user_id=user_id, product_id=product_id, size=size
+    )
+
+    return deleted_item
